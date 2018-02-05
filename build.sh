@@ -52,9 +52,14 @@ case $1 in
 		RELEASE_DIR="${RELEASE_DIR}-$RELEASE_VERSION"
 		RELEASE_COMMIT_MSG="Release version $RELEASE_VERSION from $COMMIT_HASH"
 
+		# on master
+		git tag -a "v${RELEASE_VERSION}" -m "Release version $RELEASE_VERSION"
+
+		# on release
 		BRANCH_COMMIT "$RELEASE_BRANCH" "$RELEASE_COMMIT_MSG" "$RELEASE_DIR"
 
-		test $? -eq "0" && git push $REPO $RELEASE_BRANCH > /dev/null 2>&1
+		git tag -a "v${RELEASE_VERSION}-release" -m "Release version $RELEASE_VERSION"
+		test $? -eq "0" && git push $REPO $RELEASE_BRANCH > /dev/null 2>&1 && git push --tags $REPO > /dev/null 2>&1
 		git checkout $CURRENT_BRANCH
 		;;
 	publish) ;;
