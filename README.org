@@ -1,1 +1,21 @@
 #+TITLE: Build.sh
+
+* Introduction
+This project is provide simple shell script for manipulate git branches automatically with Continuous Integrations.
+
+* How to use
+
+** .travis.yml
+#+BEGIN_SRC yaml
+after_success:
+	- ./build.sh release
+#+END_SRC
+
+* Commands
+
+** Release
+- Make release branch.
+- Detecting released commit or not.
+- Commit & Push a released commit only.
+- After finished releasing sequences, will be checkout to branch selected before.
+- After then, you can publish to package manager with =release= branch. (eg. npm publish)
