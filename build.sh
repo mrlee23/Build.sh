@@ -8,6 +8,29 @@ COMMIT_HASH=`git log --oneline -n 1 --pretty='%h'`
 
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 
+BRANCH_COMMIT () {
+	BRANCH=$1
+	COMMIT_MESSAGE=$2
+	TMP_DIR=$3
+	if [ -z "$BRANCH" ]; then echo "Branch does not specified."; exit 127; fi
+	if [ -z "$COMMIT_MESSAGE" ]; then echo "Message does not specified."; exit 127; fi
+	if [ -z "$TMP_DIR" ]; then TMP_DIR=".${BRANCH}_tmp"; fi
+
+	echo "Copy to $TMP_DIR"
+	git branch -D $BRANCH
+	git checkout -b $BRANCH
+	rm -rf ./$TMP_DIR
+	rsync -avr --exclude=.git ./ ./$TMP_DIR/ # copy master to branch's tmp directory
+	git pull origin $BRANCH 1>&2;
+	
+	echo "Restore from $TMP_DIR"
+	rsync -avr --exclude=.git --delete ./$TMP_DIR/ ./ # mv branch's tmp directory to branch and remove anothers.
+	
+	echo "Commit..."
+	git add ./
+	git commit -a -m "$COMMIT_MESSAGE"
+}
+
 # RELEASE VARIABLES
 RELEASE_BRANCH="release"
 RELEASE_DIR=".release"
@@ -25,21 +48,14 @@ case $1 in
 		fi
 		shopt -u nocasematch # case insensitive
 		[[ $COMMIT_MSG =~ $RELEASE_VERSION_REGEXP ]] && RELEASE_VERSION="${BASH_REMATCH[0]}"
+		if [ -z $RELEASE_VERSION ]; then echo "Not found release version on commit message."; exit 127; fi
 		RELEASE_DIR="${RELEASE_DIR}-$RELEASE_VERSION"
 		RELEASE_COMMIT_MSG="Release version $RELEASE_VERSION from $COMMIT_HASH"
-		echo "Copy to $RELEASE_DIR"
-		git branch -d $RELEASE_BRANCH
-		git checkout -b $RELEASE_BRANCH
-		rm -rf ./$RELEASE_DIR
-		rsync -avr --exclude=.git ./ ./$RELEASE_DIR/
-		git pull origin $RELEASE_BRANCH 1>&2;
-		rsync -avr --exclude=.git --delete ./$RELEASE_DIR/ ./
-		echo "Restore from $RELEASE_DIR"
-		git add ./
-		git commit -a -m "$RELEASE_COMMIT_MSG"
+
+		BRANCH_COMMIT "$RELEASE_BRANCH" "$RELEASE_COMMIT_MSG" "$RELEASE_DIR"
+
 		test $? -eq "0" && git push $REPO $RELEASE_BRANCH > /dev/null 2>&1
 		git checkout $CURRENT_BRANCH
-		# shopt -u extglob
 		;;
 	publish) ;;
 esac
