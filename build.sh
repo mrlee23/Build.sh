@@ -18,7 +18,7 @@ BRANCH_COMMIT () {
 
 	echo "Copy to $TMP_DIR"
 	git branch -D $BRANCH
-	git checkout -b $BRANCH
+	git checkout --orphan $BRANCH
 	rm -rf ./$TMP_DIR
 	rsync -avr --exclude=.git ./ ./$TMP_DIR/ # copy master to branch's tmp directory
 	git pull origin $BRANCH 1>&2;
