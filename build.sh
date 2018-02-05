@@ -50,7 +50,7 @@ case $1 in
 		[[ $COMMIT_MSG =~ $RELEASE_VERSION_REGEXP ]] && RELEASE_VERSION="${BASH_REMATCH[0]}"
 		if [ -z $RELEASE_VERSION ]; then echo "Not found release version on commit message."; exit 127; fi
 		RELEASE_DIR="${RELEASE_DIR}-$RELEASE_VERSION"
-		RELEASE_COMMIT_MSG="Release version $RELEASE_VERSION from $COMMIT_HASH"
+		RELEASE_COMMIT_MSG="Production: Release version $RELEASE_VERSION from $COMMIT_HASH"
 
 		# on master
 		git tag -a "v${RELEASE_VERSION}" -m "Release version $RELEASE_VERSION"
@@ -58,7 +58,7 @@ case $1 in
 		# on release
 		BRANCH_COMMIT "$RELEASE_BRANCH" "$RELEASE_COMMIT_MSG" "$RELEASE_DIR"
 
-		git tag -a "v${RELEASE_VERSION}-release" -m "Release version $RELEASE_VERSION"
+		git tag -a "v${RELEASE_VERSION}-release" -m "Production: Release version $RELEASE_VERSION"
 		test $? -eq "0" && git push $REPO $RELEASE_BRANCH > /dev/null 2>&1 && git push --tags $REPO > /dev/null 2>&1
 		git checkout $CURRENT_BRANCH
 		;;
