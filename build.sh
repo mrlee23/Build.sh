@@ -31,14 +31,12 @@ BRANCH_COMMIT () {
 	git commit -a -m "$COMMIT_MESSAGE"
 }
 
-# RELEASE VARIABLES
-RELEASE_BRANCH="release"
-RELEASE_DIR=".release"
-RELEASE_REGEXP="release[d]?.?v*"
-RELEASE_VERSION_REGEXP="[0-9]+\.[0-9]+(\.[0-9]+)?"
-
 case $1 in
 	release)
+		if [ -z "$RELEASE_BRANCH" ]; then RELEASE_BRANCH="release"; fi
+		if [ -z "$RELEASE_DIR" ]; then RELEASE_DIR=".release"; fi
+		if [ -z "$RELEASE_REGEXP" ]; then RELEASE_REGEXP="release[d]?.?v*"; fi
+		if [ -z "$RELEASE_VERSION_REGEXP" ]; then RELEASE_BRANCH="[0-9]+\.[0-9]+(\.[0-9]+)?"; fi
 		shopt -s nocasematch # case insensitive
 		if [[ ! $COMMIT_MSG =~ $RELEASE_REGEXP ]]
 		then
@@ -58,7 +56,7 @@ case $1 in
 		# on release
 		BRANCH_COMMIT "$RELEASE_BRANCH" "$RELEASE_COMMIT_MSG" "$RELEASE_DIR"
 
-		git tag -a "v${RELEASE_VERSION}-release" -m "Production: Release version $RELEASE_VERSION"
+		git tag -a "v${RELEASE_VERSION}-release" -m "$RELEASE_COMMIT_MSG"
 		test $? -eq "0" && git push $REPO $RELEASE_BRANCH > /dev/null 2>&1 && git push --tags $REPO > /dev/null 2>&1
 		git checkout $CURRENT_BRANCH
 		;;
