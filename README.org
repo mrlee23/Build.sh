@@ -1,7 +1,9 @@
 #+TITLE: Build.sh
 
 * Introduction
-This project is provide simple shell script for manipulate git branches automatically with Continuous Integrations.
+This project provide a simple shell script for manipulate git branches automatically with Continuous Integrations.
+
+You can release a version or publish docs on GitHub-pages just using commit message.
 
 * How to use
 
@@ -15,10 +17,10 @@ after_success: if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; 
 #+END_SRC
 
 * Variables
-- =GH_TOKEN= <Required> : GitHub token to push automatically in your repository
+- =GH_TOKEN= <Required> : GitHub token.
 - =RELEASE_BRANCH= <Optional> : Release branch name. This branch will be checkout using orphan option.
 - =RELEASE_DIR= <Optional> : Temporary directory to save exists repo data.
-- =RELEASE_REGEXP= <Optional> : REGEXP for check can be a releasable commit.
+- =RELEASE_REGEXP= <Optional> : REGEXP for check that repo has a releasable commit.
 - =RELEASE_VERSION_REGEXP= : REGEXP for detect version number.
 
 * Commands
