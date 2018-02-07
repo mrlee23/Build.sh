@@ -5,11 +5,21 @@ This project is provide simple shell script for manipulate git branches automati
 
 * How to use
 
-** .travis.yml
+1. Download source at [[https://raw.githubusercontent.com/mrlee23/Build.sh/master/build.sh]]
+** example of .travis.yml
 #+BEGIN_SRC yaml
-after_success:
-	- ./build.sh release
+before_script:
+  - curl -o build.sh https://raw.githubusercontent.com/mrlee23/Build.sh/master/build.sh
+
+after_success: if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; fi
 #+END_SRC
+
+* Variables
+- =GH_TOKEN= <Required> : GitHub token to push automatically in your repository
+- =RELEASE_BRANCH= <Optional> : Release branch name. This branch will be checkout using orphan option.
+- =RELEASE_DIR= <Optional> : Temporary directory to save exists repo data.
+- =RELEASE_REGEXP= <Optional> : REGEXP for check can be a releasable commit.
+- =RELEASE_VERSION_REGEXP= : REGEXP for detect version number.
 
 * Commands
 
