@@ -40,6 +40,7 @@ BRANCH_COMMIT () {
 
 case $1 in
 	release)
+		if [ -z "$RELEASE_LABEL" ]; then RELEASE_LABEL="Production"; fi
 		if [ -z "$RELEASE_BRANCH" ]; then RELEASE_BRANCH="release"; fi
 		if [ -z "$RELEASE_DIR" ]; then RELEASE_DIR=".release"; fi
 		if [ -z "$RELEASE_REGEXP" ]; then RELEASE_REGEXP="release[d]?.?v*"; fi
@@ -55,7 +56,7 @@ case $1 in
 		[[ $COMMIT_MSG =~ $RELEASE_VERSION_REGEXP ]] && RELEASE_VERSION="${BASH_REMATCH[0]}"
 		if [ -z $RELEASE_VERSION ]; then echo "Not found release version on commit message."; exit 127; fi
 		RELEASE_DIR="${RELEASE_DIR}-$RELEASE_VERSION"
-		RELEASE_COMMIT_MSG="Production: Release version $RELEASE_VERSION from $COMMIT_HASH"
+		RELEASE_COMMIT_MSG="${RELEASE_LABEL}: Release version $RELEASE_VERSION from $COMMIT_HASH"
 
 		# on master
 		git tag -a "v${RELEASE_VERSION}" -m "Release version $RELEASE_VERSION"
@@ -69,9 +70,10 @@ case $1 in
 		;;
 	publish) ;;
 	gh-pages)
-		if [ -z "$GH_PAGES_BRANCH" ]; then RELEASE_BRANCH="gh-pages"; fi
-		if [ -z "$GH_PAGES_DIR" ]; then RELEASE_DIR=".gh-pages"; fi
-		if [ -z "$GH_PAGES_COMMIT_MSG"]; then GH_PAGES_COMMIT_MSG="Pages: $COMMIT_MSG from $COMMIT_HASH"; fi
+		if [ -z "$GH_PAGES_LABEL" ]; then GH_PAGES_LABEL="Pages"; fi
+		if [ -z "$GH_PAGES_BRANCH" ]; then GH_PAGES_BRANCH="gh-pages"; fi
+		if [ -z "$GH_PAGES_DIR" ]; then GH_PAGES_DIR=".gh-pages"; fi
+		if [ -z "$GH_PAGES_COMMIT_MSG"]; then GH_PAGES_COMMIT_MSG="${GH_PAGES_LABEL}: $COMMIT_MSG from $COMMIT_HASH"; fi
 		BRANCH_COMMIT "$GH_PAGES_BRANCH" "$GH_PAGES_COMMIT_MSG" "$GH_PAGES_DIR" "TRUE"
 		;;
 esac
