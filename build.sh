@@ -38,6 +38,33 @@ BRANCH_COMMIT () {
 	fi
 }
 
+PAGES_COMMIT () {
+	BRANCH=$1
+	COMMIT_MESSAGE=$2
+	TMP_DIR=$3
+	WITH_PUSH=$4
+	if [ -z "$BRANCH" ]; then echo "Branch does not specified."; exit 127; fi
+	if [ -z "$COMMIT_MESSAGE" ]; then echo "Message does not specified."; exit 127; fi
+	if [ -z "$TMP_DIR" ]; then TMP_DIR=".${BRANCH}_tmp"; fi
+
+	git branch -D $BRANCH
+	git checkout --orphan $BRANCH
+	git pull origin $BRANCH 1>&2;
+	
+	echo "Copy from $TMP_DIR"
+	rsync -avr --exclude=.git --delete ./$TMP_DIR/ ./ # mv branch's tmp directory to branch and remove anothers.
+	
+	echo "Commit..."
+	git add ./
+	git commit -a -m "$COMMIT_MESSAGE"
+
+	if [ "$WITH_PUSH" == "TRUE" ]
+	then
+		echo "Pushing..."
+		test $? -eq "0" && git push $REPO $BRANCH > /dev/null 2>&1
+	fi
+}
+
 case $1 in
 	release)
 		if [ -z "$RELEASE_LABEL" ]; then RELEASE_LABEL="Production"; fi
@@ -74,6 +101,6 @@ case $1 in
 		if [ -z "$GH_PAGES_BRANCH" ]; then GH_PAGES_BRANCH="gh-pages"; fi
 		if [ -z "$GH_PAGES_DIR" ]; then GH_PAGES_DIR=".gh-pages"; fi
 		if [ -z "$GH_PAGES_COMMIT_MSG"]; then GH_PAGES_COMMIT_MSG="${GH_PAGES_LABEL}: $COMMIT_MSG from $COMMIT_HASH"; fi
-		BRANCH_COMMIT "$GH_PAGES_BRANCH" "$GH_PAGES_COMMIT_MSG" "$GH_PAGES_DIR" "TRUE"
+		PAGES_COMMIT "$GH_PAGES_BRANCH" "$GH_PAGES_COMMIT_MSG" "$GH_PAGES_DIR" "TRUE"
 		;;
 esac
