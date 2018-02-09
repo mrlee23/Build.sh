@@ -25,9 +25,35 @@ after_success: if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; 
 
 * Commands
 
-** Release
-- Make release branch.
+** Release(=release=)
+- Make 'release' branch.
 - Detecting released commit or not.
 - Commit & Push a released commit only.
 - After finished releasing sequences, will be checkout to branch selected before.
 - After then, you can publish to package manager with =release= branch. (eg. npm publish)
+- Commit message will be generating to "Production: <commit message> from <commit hash>".
+
+*** Variables
+**** required
+- =GH_TOKEN=
+
+**** optional
+- =RELEASE_BRANCH=
+- =RELEASE_DIR=
+- =RELEASE_REGEXP=
+- =RELEASE_VERSION_REGEXP=
+
+** Github Pages(=gh-pages=)
+- Make 'gh-pages' branch.
+- Always commit and push.
+- Needs '.gh-pages' directory to deploy contents.
+- Commit message will be generating to "Pages: <commit message> from <commit hash>".
+
+*** Variables
+**** required
+- =GH_TOKEN=
+
+**** optional
+- =GH_PAGES_BRANCH=
+- =GH_PAGES_DIR=
+- =GH_PAGES_COMMIT_MSG=

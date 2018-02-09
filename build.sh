@@ -12,6 +12,7 @@ BRANCH_COMMIT () {
 	BRANCH=$1
 	COMMIT_MESSAGE=$2
 	TMP_DIR=$3
+	WITH_PUSH=$4
 	if [ -z "$BRANCH" ]; then echo "Branch does not specified."; exit 127; fi
 	if [ -z "$COMMIT_MESSAGE" ]; then echo "Message does not specified."; exit 127; fi
 	if [ -z "$TMP_DIR" ]; then TMP_DIR=".${BRANCH}_tmp"; fi
@@ -29,6 +30,12 @@ BRANCH_COMMIT () {
 	echo "Commit..."
 	git add ./
 	git commit -a -m "$COMMIT_MESSAGE"
+
+	if [ "$WITH_PUSH" == "TRUE" ]
+	then
+		echo "Pushing..."
+		test $? -eq "0" && git push $REPO $BRANCH > /dev/null 2>&1
+	fi
 }
 
 case $1 in
@@ -61,4 +68,10 @@ case $1 in
 		git checkout $CURRENT_BRANCH
 		;;
 	publish) ;;
+	gh-pages)
+		if [ -z "$GH_PAGES_BRANCH" ]; then RELEASE_BRANCH="gh-pages"; fi
+		if [ -z "$GH_PAGES_DIR" ]; then RELEASE_DIR=".gh-pages"; fi
+		if [ -z "$GH_PAGES_COMMIT_MSG"]; then GH_PAGES_COMMIT_MSG="Pages: $COMMIT_MSG from $COMMIT_HASH"; fi
+		BRANCH_COMMIT "$GH_PAGES_BRANCH" "$GH_PAGES_COMMIT_MSG" "$GH_PAGES_DIR" "TRUE"
+		;;
 esac
