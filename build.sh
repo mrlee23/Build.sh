@@ -52,6 +52,7 @@ PAGES_COMMIT () {
 
 	git branch -D $BRANCH
 	git checkout --orphan $BRANCH
+	git stash
 	git pull origin $BRANCH 1>&2;
 	
 	echo "Copy from $TMP_DIR"
