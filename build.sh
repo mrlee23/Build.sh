@@ -47,18 +47,21 @@ PAGES_COMMIT () {
 	if [ -z "$COMMIT_MESSAGE" ]; then echo "Message does not specified."; exit 127; fi
 	if [ -z "$TMP_DIR" ]; then TMP_DIR=".${BRANCH}_tmp"; fi
 
+	git branch -D $BRANCH
 	git checkout --orphan $BRANCH
-	BRANCH_EXISTS=`git ls-remote --heads origin $BRANCH | wc -l`
-	if [ "$BRANCH_EXISTS" -gt 0 ]; then git pull origin $BRANCH; fi
-	shopt -s extglob
-	rm -rf !(.git|$TMP_DIR)
-	mv -f "${TMP_DIR}"/* ./
+	git pull origin $BRANCH 1>&2;
+	
+	echo "Copy from $TMP_DIR"
+	rsync -avr --exclude=.git --delete ./$TMP_DIR/ ./ # mv branch's tmp directory to branch and remove anothers.
+	
+	echo "Commit..."
 	git add ./
-	git commit -a -m "${COMMIT_MESSAGE}"
+	git commit -a -m "$COMMIT_MESSAGE"
+
 	if [ "$WITH_PUSH" == "TRUE" ]
 	then
 		echo "Pushing..."
-		test $? -eq "0" && git push $REPO $BUILD_BRANCH > /dev/null 2>&1
+		test $? -eq "0" && git push $REPO $BRANCH > /dev/null 2>&1
 	fi
 }
 
