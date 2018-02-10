@@ -18,8 +18,8 @@ after_success: if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; 
 
 * Global Variables
 - =GH_TOKEN= <Required> : GitHub token.
-- =GIT_USERNAME= <Optional>
-- =GIT_USEREMAIL= <Optional>
+- =GIT_USER_NAME= <Optional>
+- =GIT_USER_EMAIL= <Optional>
 
 * Commands
 
