@@ -1,7 +1,10 @@
 #!/bin/bash
 
-if [ -z "${GH_TOKEN}" ]; then "GH_TOKEN is not setted" 1>&2; fi
-if [ -z "${REPO}" ]; then REPO=$(sed "s/https:\/\/github.com/https:\/\/${GH_TOKEN}@github.com/g" <<< $(git config remote.origin.url)); fi
+if [ -z "$GH_TOKEN" ]; then "GH_TOKEN is not setted" 1>&2; fi
+if [ -z "$REPO" ]; then REPO=$(sed "s/https:\/\/github.com/https:\/\/${GH_TOKEN}@github.com/g" <<< $(git config remote.origin.url)); fi
+if [ -n "$GIT_USERNAME" ]; then git config --global user.name "$GIT_USERNAME"; fi
+if [ -n "$GIT_USEREMAIL" ]; then git config --global user.email "$GIT_USEREMAIL"; fi
+
 
 COMMIT_MSG=`git log --oneline -n 1 --pretty='%s'`
 COMMIT_HASH=`git log --oneline -n 1 --pretty='%h'`

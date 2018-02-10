@@ -16,12 +16,10 @@ before_script:
 after_success: if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; fi
 #+END_SRC
 
-* Variables
+* Global Variables
 - =GH_TOKEN= <Required> : GitHub token.
-- =RELEASE_BRANCH= <Optional> : Release branch name. This branch will be checkout using orphan option.
-- =RELEASE_DIR= <Optional> : Temporary directory to save exists repo data.
-- =RELEASE_REGEXP= <Optional> : REGEXP for check that repo has a releasable commit.
-- =RELEASE_VERSION_REGEXP= : REGEXP for detect version number.
+- =GIT_USERNAME= <Optional>
+- =GIT_USEREMAIL= <Optional>
 
 * Commands
 
@@ -39,10 +37,10 @@ after_success: if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; 
 
 **** optional
 - =RELEASE_LABEL= : Default is 'Production'
-- =RELEASE_BRANCH=
-- =RELEASE_DIR=
-- =RELEASE_REGEXP=
-- =RELEASE_VERSION_REGEXP=
+- =RELEASE_BRANCH= : Release branch name. This branch will be checkout using orphan option.
+- =RELEASE_DIR= : Temporary directory to save exists repo data.
+- =RELEASE_REGEXP= : REGEXP for check that repo has a releasable commit.
+- =RELEASE_VERSION_REGEXP= : REGEXP for detect version number.
 
 ** Github Pages(=gh-pages=)
 - Make 'gh-pages' branch.
