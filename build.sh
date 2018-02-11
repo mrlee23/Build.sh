@@ -25,7 +25,7 @@ BRANCH_COMMIT () {
 	git checkout --orphan $BRANCH
 	rm -rf ./$TMP_DIR
 	rsync -avr --exclude=.git ./ ./$TMP_DIR/ # copy master to branch's tmp directory
-	git pull origin $BRANCH 1>&2;
+	git pull origin $BRANCH
 	
 	echo "Restore from $TMP_DIR"
 	rsync -avr --exclude=.git --delete ./$TMP_DIR/ ./ # mv branch's tmp directory to branch and remove anothers.
@@ -50,13 +50,15 @@ PAGES_COMMIT () {
 	if [ -z "$COMMIT_MESSAGE" ]; then echo "Message does not specified."; exit 127; fi
 	if [ -z "$TMP_DIR" ]; then TMP_DIR=".${BRANCH}_tmp"; fi
 
-	git branch -D $BRANCH
+	BRANCH_EXISTS=`git ls-remote --heads origin $BRANCH | wc -l`
 	git checkout --orphan $BRANCH
-	git stash
-	git pull origin $BRANCH 1>&2;
+	if [ "$BRANCH_EXISTS" -gt 0 ]
+	then
+		git pull origin $BRANCH
+	fi
 	
 	echo "Copy from $TMP_DIR"
-	rsync -avr --exclude=.git --delete ./$TMP_DIR/ ./ # mv branch's tmp directory to branch and remove anothers.
+	rsync -avr --exclude=.git --delete-after ./$TMP_DIR/ ./ # mv branch's tmp directory to branch and remove anothers.
 	
 	echo "Commit..."
 	git add ./
