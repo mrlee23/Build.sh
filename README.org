@@ -7,14 +7,34 @@ You can release a version or publish docs on GitHub-pages just using commit mess
 
 * How to use
 
-1. Download source at [[https://raw.githubusercontent.com/mrlee23/Build.sh/master/build.sh]]
-** example of .travis.yml
+** using Git submodule
+
+1. add submodule on your git repository.
+	#+BEGIN_SRC sh
+git submodule add https://github.com/mrlee23/Build.sh
+git submodule update --init
+	#+END_SRC
+2. configure your =.travis.yml= file
+	#+BEGIN_SRC yaml
+before_script:
+  - git submodule update
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; fi
+	#+END_SRC
+
+
+** using File
+
+Download source at [[https://raw.githubusercontent.com/mrlee23/Build.sh/master/build.sh]]
+
+*** example of .travis.yml
 #+BEGIN_SRC yaml
 before_script:
   - curl -o build.sh https://raw.githubusercontent.com/mrlee23/Build.sh/master/build.sh
 
 after_success: if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; fi
 #+END_SRC
+
 
 * Global Variables
 - =GH_TOKEN= <Required> : GitHub token.
@@ -23,7 +43,7 @@ after_success: if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; 
 
 * Commands
 
-** Release(=release=)
+** =release=
 - Make 'release' branch.
 - Detecting released commit or not.
 - Commit & Push a released commit only.
@@ -42,7 +62,7 @@ after_success: if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; 
 - =RELEASE_REGEXP= : REGEXP for check that repo has a releasable commit.
 - =RELEASE_VERSION_REGEXP= : REGEXP for detect version number.
 
-** Github Pages(=gh-pages=)
+** =gh-pages=(Github Pages)
 - Make 'gh-pages' branch.
 - Always commit and push.
 - Needs '.gh-pages' directory to deploy contents.
