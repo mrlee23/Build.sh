@@ -73,7 +73,6 @@ PAGES_COMMIT () {
 
 case $1 in
 	release)
-		if [ -z "$RELEASE_LABEL" ]; then RELEASE_LABEL="Production"; fi
 		if [ -z "$RELEASE_BRANCH" ]; then RELEASE_BRANCH="release"; fi
 		if [ -z "$RELEASE_DIR" ]; then RELEASE_DIR=".release"; fi
 		if [ -z "$RELEASE_REGEXP" ]; then RELEASE_REGEXP="release[d]?.?v*"; fi
@@ -89,7 +88,12 @@ case $1 in
 		[[ $COMMIT_MSG =~ $RELEASE_VERSION_REGEXP ]] && RELEASE_VERSION="${BASH_REMATCH[0]}"
 		if [ -z $RELEASE_VERSION ]; then echo "Not found release version on commit message."; exit 127; fi
 		RELEASE_DIR="${RELEASE_DIR}-$RELEASE_VERSION"
-		RELEASE_COMMIT_MSG="${RELEASE_LABEL}: Release version $RELEASE_VERSION from $COMMIT_HASH"
+		if [ -z "$RELEASE_LABEL" ]
+		then
+			RELEASE_COMMIT_MSG="Release version $RELEASE_VERSION from $COMMIT_HASH"
+		else
+			RELEASE_COMMIT_MSG="${RELEASE_LABEL}: Release version $RELEASE_VERSION from $COMMIT_HASH"
+		fi
 
 		# on master
 		git tag -a "v${RELEASE_VERSION}" -m "Release version $RELEASE_VERSION"
