@@ -36,8 +36,7 @@ BRANCH_COMMIT () {
 
 	if [ "$WITH_PUSH" == "TRUE" ]
 	then
-		echo "Pushing..."
-		test $? -eq "0" && git push $REPO $BRANCH > /dev/null 2>&1
+		test $? -eq "0" && echo "Pushing..." && git push $REPO $BRANCH
 	fi
 }
 
@@ -66,13 +65,13 @@ PAGES_COMMIT () {
 
 	if [ "$WITH_PUSH" == "TRUE" ]
 	then
-		echo "Pushing..."
-		test $? -eq "0" && git push $REPO $BRANCH > /dev/null 2>&1
+		test $? -eq "0" && echo "Pushing..." && git push $REPO $BRANCH
 	fi
 }
 
 case $1 in
 	release)
+		if [ -z "$RELEASE_WITH_VERSION" ]; then RELEASE_BRANCH="TRUE"; fi
 		if [ -z "$RELEASE_BRANCH" ]; then RELEASE_BRANCH="release"; fi
 		if [ -z "$RELEASE_DIR" ]; then RELEASE_DIR=".release"; fi
 		if [ -z "$RELEASE_REGEXP" ]; then RELEASE_REGEXP="release[d]?.?v*"; fi
@@ -85,27 +84,44 @@ case $1 in
 			exit
 		fi
 		shopt -u nocasematch # case insensitive
-		[[ $COMMIT_MSG =~ $RELEASE_VERSION_REGEXP ]] && RELEASE_VERSION="${BASH_REMATCH[0]}"
-		if [ -z $RELEASE_VERSION ]; then echo "Not found release version on commit message."; exit 127; fi
-		RELEASE_DIR="${RELEASE_DIR}-$RELEASE_VERSION"
-		if [ -z "$RELEASE_LABEL" ]
+
+		if [ "$RELEASE_WITH_VERSION" == "TRUE" ]
 		then
-			RELEASE_COMMIT_MSG="Release version $RELEASE_VERSION from $COMMIT_HASH"
+			[[ $COMMIT_MSG =~ $RELEASE_VERSION_REGEXP ]] && RELEASE_VERSION="${BASH_REMATCH[0]}"
+			if [ -z $RELEASE_VERSION ]; then echo "Not found release version on commit message."; exit 127; fi
+			RELEASE_DIR="${RELEASE_DIR}-$RELEASE_VERSION"
+
+			if [ -z "$RELEASE_LABEL" ]
+			then
+				RELEASE_COMMIT_MSG="Release version $RELEASE_VERSION from $COMMIT_HASH"
+			else
+				RELEASE_COMMIT_MSG="${RELEASE_LABEL}: Release version $RELEASE_VERSION from $COMMIT_HASH"
+			fi
+
+			# on master
+			git tag -a "v${RELEASE_VERSION}" -m "Release version $RELEASE_VERSION"
+
+			# on release
+			BRANCH_COMMIT "$RELEASE_BRANCH" "$RELEASE_COMMIT_MSG" "$RELEASE_DIR"
+
+			git tag -a "v${RELEASE_VERSION}-release" -m "$RELEASE_COMMIT_MSG"
 		else
-			RELEASE_COMMIT_MSG="${RELEASE_LABEL}: Release version $RELEASE_VERSION from $COMMIT_HASH"
+			if [ -z "$RELEASE_LABEL" ]; then RELEASE_LABEL="Release"; fi
+			RELEASE_COMMIT_MSG="${RELEASE_LABEL}: $COMMIT_MSG from $COMMIT_HASH"
+
+			BRANCH_COMMIT "$RELEASE_BRANCH" "$RELEASE_COMMIT_MSG" "$RELEASE_DIR" "TRUE"
 		fi
-
-		# on master
-		git tag -a "v${RELEASE_VERSION}" -m "Release version $RELEASE_VERSION"
-
-		# on release
-		BRANCH_COMMIT "$RELEASE_BRANCH" "$RELEASE_COMMIT_MSG" "$RELEASE_DIR"
-
-		git tag -a "v${RELEASE_VERSION}-release" -m "$RELEASE_COMMIT_MSG"
 		test $? -eq "0" && git push $REPO $RELEASE_BRANCH > /dev/null 2>&1 && git push --tags $REPO > /dev/null 2>&1
 		git checkout $CURRENT_BRANCH
 		;;
-	publish) ;;
+	publish)
+		if [ -z "$PUBLISH_LABEL" ]; then PUBLISH_LABEL="Publish"; fi
+		if [ -z "$PUBLISH_BRANCH" ]; then PUBLISH_BRANCH="publish"; fi
+		if [ -z "$PUBLISH_DIR" ]; then PUBLISH_DIR=".publish"; fi
+		if [ -z "$PUBLISH_COMMIT_MSG"]; then PUBLISH_COMMIT_MSG="${PUBLISH_LABEL}: $COMMIT_MSG from $COMMIT_HASH"; fi
+		PAGES_COMMIT "$PUBLISH_BRANCH" "$PUBLISH_COMMIT_MSG" "$PUBLISH_DIR" "TRUE"
+		git checkout $CURRENT_BRANCH
+		;;
 	gh-pages)
 		if [ -z "$GH_PAGES_LABEL" ]; then GH_PAGES_LABEL="Pages"; fi
 		if [ -z "$GH_PAGES_BRANCH" ]; then GH_PAGES_BRANCH="gh-pages"; fi

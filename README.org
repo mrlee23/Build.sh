@@ -61,6 +61,24 @@ after_success: if [ "$TRAVIS_BRANCH" == "master" ]; then bash build.sh release; 
 - =RELEASE_DIR= : Temporary directory to save exists repo data.
 - =RELEASE_REGEXP= : REGEXP for check that repo has a releasable commit.
 - =RELEASE_VERSION_REGEXP= : REGEXP for detect version number.
+- =RELEASE_WITH_VERSION= : Generate commit message using version or not.(default: TRUE)
+
+** =publish=
+- Make 'publish' branch.
+- Always commit and push.
+- Needs '.publish' or =PUBLISH_DIR= directory to deploy contents.
+- Commit message will be generating to "Publish: <commit message> from <commit hash>".
+- Same actions with =gh-pages=.
+
+*** Variables
+**** required
+- =GH_TOKEN=
+
+**** optional
+- =PUBLISH_LABEL= : Default is 'Publish'
+- =PUBLISH_BRANCH=
+- =PUBLISH_DIR=
+- =PUBLISH_COMMIT_MSG=
 
 ** =gh-pages=(Github Pages)
 - Make 'gh-pages' branch.
