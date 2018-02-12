@@ -112,5 +112,6 @@ case $1 in
 		if [ -z "$GH_PAGES_DIR" ]; then GH_PAGES_DIR=".gh-pages"; fi
 		if [ -z "$GH_PAGES_COMMIT_MSG"]; then GH_PAGES_COMMIT_MSG="${GH_PAGES_LABEL}: $COMMIT_MSG from $COMMIT_HASH"; fi
 		PAGES_COMMIT "$GH_PAGES_BRANCH" "$GH_PAGES_COMMIT_MSG" "$GH_PAGES_DIR" "TRUE"
+		git checkout $CURRENT_BRANCH
 		;;
 esac
