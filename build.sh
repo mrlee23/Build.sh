@@ -5,7 +5,7 @@ if [ -z "$REPO" ]; then REPO=$(sed "s/https:\/\/github.com/https:\/\/${GH_TOKEN}
 if [ -n "$GIT_USER_NAME" ]; then git config --global user.name "$GIT_USER_NAME"; fi
 if [ -n "$GIT_USER_EMAIL" ]; then git config --global user.email "$GIT_USER_EMAIL"; fi
 
-
+GIT_REMOTE_ORIGIN_URL=`git config remote.origin.url`
 COMMIT_MSG=`git log --oneline -n 1 --pretty='%s'`
 COMMIT_HASH=`git log --oneline -n 1 --pretty='%h'`
 
@@ -45,15 +45,22 @@ PAGES_COMMIT () {
 	COMMIT_MESSAGE=$2
 	TMP_DIR=$3
 	WITH_PUSH=$4
+	CURRENT_DIR=`pwd`
 	if [ -z "$BRANCH" ]; then echo "Branch does not specified."; exit 127; fi
 	if [ -z "$COMMIT_MESSAGE" ]; then echo "Message does not specified."; exit 127; fi
 	if [ -z "$TMP_DIR" ]; then TMP_DIR=".${BRANCH}_tmp"; fi
+	TMP_GIT_DIR="${TMP_DIR}_git"
 
-	BRANCH_EXISTS=`git ls-remote --heads origin $BRANCH | wc -l`
-	git checkout --orphan $BRANCH
-	if [ "$BRANCH_EXISTS" -gt 0 ]
+	[[ `git ls-remote --heads origin $BRANCH | wc -l` -gt 0 ]] && BRANCH_EXISTS=TRUE
+	
+	cd "$TMP_GIT_DIR"
+	git init
+	git remote add origin $GIT_REMOTE_ORIGIN_URL
+	if [ $BRANCH_EXISTS == TRUE ]
 	then
 		git pull origin $BRANCH
+	else
+		git checkout --orphan $BRANCH
 	fi
 	
 	echo "Copy from $TMP_DIR"
@@ -63,10 +70,12 @@ PAGES_COMMIT () {
 	git add ./
 	git commit -a -m "$COMMIT_MESSAGE"
 
-	if [ "$WITH_PUSH" == "TRUE" ]
+	if [ $WITH_PUSH == TRUE ]
 	then
 		test $? -eq "0" && echo "Pushing..." && git push $REPO $BRANCH
 	fi
+	cd "$CURRENT_DIR"
+	rm -rf "$TMP_GIT_DIR"
 }
 
 case $1 in
