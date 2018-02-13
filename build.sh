@@ -49,6 +49,10 @@ PAGES_COMMIT () {
 	if [ -z "$BRANCH" ]; then echo "Branch does not specified."; exit 127; fi
 	if [ -z "$COMMIT_MESSAGE" ]; then echo "Message does not specified."; exit 127; fi
 	if [ -z "$TMP_DIR" ]; then TMP_DIR=".${BRANCH}_tmp"; fi
+	cd "$TMP_DIR"
+	TMP_DIR=`pwd`
+	cd "$CURRENT_DIR"
+
 	TMP_GIT_DIR="${TMP_DIR}_git"
 
 	[[ `git ls-remote --heads origin $BRANCH | wc -l` -gt 0 ]] && BRANCH_EXISTS=TRUE
