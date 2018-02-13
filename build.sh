@@ -70,7 +70,7 @@ PAGES_COMMIT () {
 	fi
 	
 	echo "Copy from $TMP_DIR"
-	rsync -avr --exclude=.git --delete-after ./$TMP_DIR/ ./ # mv branch's tmp directory to branch and remove anothers.
+	rsync -avr --exclude=.git --delete-after "$TMP_DIR/" ./ # mv branch's tmp directory to branch and remove anothers.
 	
 	echo "Commit..."
 	git add ./
