@@ -62,11 +62,10 @@ PAGES_COMMIT () {
 	cd "$TMP_GIT_DIR"
 	git init
 	git remote add origin $GIT_REMOTE_ORIGIN_URL
+	git checkout --orphan $BRANCH
 	if [ $BRANCH_EXISTS == TRUE ]
 	then
 		git pull origin $BRANCH
-	else
-		git checkout --orphan $BRANCH
 	fi
 	
 	echo "Copy from $TMP_DIR"
