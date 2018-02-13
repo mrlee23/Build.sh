@@ -52,6 +52,8 @@ PAGES_COMMIT () {
 	TMP_GIT_DIR="${TMP_DIR}_git"
 
 	[[ `git ls-remote --heads origin $BRANCH | wc -l` -gt 0 ]] && BRANCH_EXISTS=TRUE
+
+	if [ ! -d "$TMP_GIT_DIR" ]; then mkdir -p "$TMP_GIT_DIR"; fi
 	
 	cd "$TMP_GIT_DIR"
 	git init
